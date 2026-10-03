@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartPOS Market | Ambiente de Pruebas</title>
+<style>
+:root{
+  --bg:#030a14;
+  --bg2:#06111f;
+  --panel:#071526;
+  --panel2:#0a1b2e;
+  --line:#0f5e70;
+  --cyan:#14e8f5;
+  --cyan2:#54d8ff;
+  --green:#7cff35;
+  --blue:#39a7ff;
+  --purple:#b66cff;
+  --orange:#ffad4b;
+  --red:#ff5c68;
+  --text:#f4f8fc;
+  --muted:#9fb0c2;
+  --shadow:0 18px 55px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,Segoe UI,Arial,sans-serif;background:
+radial-gradient(circle at 88% 8%,rgba(109,38,205,.18),transparent 28%),
+radial-gradient(circle at 5% 20%,rgba(0,212,227,.11),transparent 28%),
+linear-gradient(180deg,#020812 0%,#061120 55%,#030914 100%);color:var(--text)}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+.sidebar{
+  position:sticky;top:0;height:100vh;padding:18px 14px;
+  border-right:1px solid rgba(20,232,245,.18);
+  background:rgba(3,10,22,.9);backdrop-filter:blur(18px)
+}
+.brand{display:flex;align-items:center;gap:11px;font-weight:900;font-size:20px;padding:4px 8px 18px}
+.brand .logo{width:42px;height:42px;display:grid;place-items:center;border:1px solid rgba(20,232,245,.45);border-radius:12px;color:var(--cyan);font-size:24px;box-shadow:0 0 24px rgba(20,232,245,.12)}
+.env{
+  margin:0 6px 18px;padding:10px 12px;border-radius:12px;
+  border:1px solid rgba(124,255,53,.26);background:rgba(124,255,53,.06);
+  color:#bfff9a;font-size:11px;font-weight:800
+}
+.nav{display:grid;gap:6px}
+.nav button{
+  width:100%;border:1px solid transparent;background:transparent;color:#b9c7d6;
+  display:flex;align-items:center;gap:10px;padding:12px;border-radius:11px;text-align:left;font-weight:700
+}
+.nav button:hover,.nav button.active{
+  color:#fff;background:linear-gradient(90deg,rgba(20,232,245,.11),rgba(57,167,255,.08));
+  border-color:rgba(20,232,245,.22)
+}
+.nav button.active{color:var(--cyan)}
+.side-bottom{position:absolute;bottom:17px;left:14px;right:14px}
+.user-mini{
+  padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:#071524;
+  display:grid;grid-template-columns:36px 1fr;gap:9px;align-items:center
+}
+.avatar{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--purple));color:#04111a;font-weight:900}
+.user-mini small{display:block;color:var(--muted);margin-top:2px}
+
+.main{min-width:0}
+.topbar{
+  position:sticky;top:0;z-index:20;height:66px;display:flex;align-items:center;gap:12px;padding:0 22px;
+  background:rgba(3,10,22,.82);backdrop-filter:blur(16px);border-bottom:1px solid rgba(20,232,245,.15)
+}
+.topbar h1{font-size:17px;margin:0}
+.topbar .spacer{flex:1}
+.status{display:flex;align-items:center;gap:7px;color:#b9c6d5;font-size:12px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 12px rgba(124,255,53,.55)}
+.role-select,.top-select{
+  background:#071728;color:#fff;border:1px solid #18445f;border-radius:8px;padding:8px 10px;font-size:12px
+}
+.content{padding:18px 20px 30px}
+.page{display:none}.page.active{display:block}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:14px}
+.page-head h2{font-size:25px;margin:0}
+.page-head p{margin:5px 0 0;color:var(--muted);font-size:13px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{
+  border:1px solid rgba(20,232,245,.28);background:#08203a;color:#d9f8fb;
+  padding:9px 13px;border-radius:9px;font-weight:800;font-size:12px
+}
+.btn:hover{border-color:var(--cyan)}
+.btn.primary{background:linear-gradient(90deg,#1fc84c,#7eee36);border:0;color:#061209}
+.btn.danger{background:#35131c;border-color:#7b2631;color:#ff9fa7}
+.btn.warn{background:#33230e;border-color:#77511f;color:#ffd080}
+.card{
+  background:linear-gradient(155deg,rgba(7,23,40,.94),rgba(8,20,37,.94));
+  border:1px solid rgba(20,232,245,.28);border-radius:17px;box-shadow:var(--shadow)
+}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+
+/* POS */
+.pos-layout{display:grid;grid-template-columns:minmax(0,1.7fr) 300px;gap:14px}
+.pos-card{padding:17px}
+.pos-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}
+.pos-title b{font-size:14px}
+.online{color:var(--green);font-size:12px;font-weight:800}
+.scan{display:grid;grid-template-columns:1fr 42px;gap:8px}
+.scan input,.field{
+  width:100%;background:#061525;border:1px solid #174565;border-radius:8px;color:#fff;padding:10px 11px;outline:none
+}
+.scan input:focus,.field:focus{border-color:var(--cyan)}
+.scan button{border:0;border-radius:8px;background:#0b2945;color:var(--cyan);font-size:18px}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px 8px;text-align:left;border-bottom:1px solid rgba(28,69,99,.6);font-size:12px}
+th{color:#95a9bc;font-weight:800}
+.prod{display:flex;align-items:center;gap:9px}
+.picon{width:30px;height:30px;border-radius:7px;background:#10253d;display:grid;place-items:center}
+.qty{display:flex;gap:5px;align-items:center}
+.qty button{width:23px;height:23px;padding:0;border-radius:6px;border:1px solid #166273;background:#071827;color:var(--green)}
+.summary{padding:16px}
+.total-label{font-size:11px;color:#b6c4d2}
+.total{font-size:34px;color:var(--green);font-weight:900;margin:3px 0 12px}
+.summary label{font-size:10px;color:#9db0c1;display:block;margin:7px 0 4px}
+.summary select{width:100%;background:#071728;color:#fff;border:1px solid #1b4765;border-radius:7px;padding:8px}
+.pay{width:100%;margin-top:9px;padding:11px;border:0;border-radius:8px;background:linear-gradient(90deg,#1cc64a,#81ef3c);color:#061208;font-weight:900}
+.daily{margin-top:12px;padding-top:10px;border-top:1px solid #173a58;font-size:10px;color:#a9b7c5}
+.daily div{display:flex;justify-content:space-between;margin:5px 0}
+.quick-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:10px}
+.qstat{padding:11px;border:1px solid #173a58;border-radius:10px;background:#06131f;font-size:11px;display:flex;align-items:center;gap:8px}
+.qstat b{display:block;font-size:12px}.red{color:var(--red)}.blue{color:var(--blue)}.green{color:var(--green)}
+
+/* Dashboard */
+.kpi{padding:16px}.kpi .value{font-size:28px;font-weight:900;margin:5px 0}.kpi small{color:var(--muted)}
+.chart{padding:17px;height:260px}.bars{height:180px;display:flex;align-items:end;gap:12px;padding:18px 8px 0}
+.bar{flex:1;border-radius:8px 8px 0 0;background:linear-gradient(180deg,var(--cyan),#2076ff);min-height:20px;position:relative}
+.bar span{position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);font-size:10px;color:#8fa3b5}
+
+/* Search */
+.search-panel{padding:16px}
+.search-row{display:grid;grid-template-columns:1.5fr .7fr .7fr auto;gap:9px}
+.result-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.result{padding:14px}.result h4{margin:0 0 8px}.result p{font-size:11px;color:var(--muted);margin:4px 0}
+
+/* Inventory */
+.toolbar{display:flex;gap:8px;margin-bottom:11px;flex-wrap:wrap}
+.badge{display:inline-flex;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:800}
+.badge.ok{background:rgba(124,255,53,.1);color:#a5ff7b;border:1px solid rgba(124,255,53,.2)}
+.badge.low{background:rgba(255,92,104,.1);color:#ff9aa3;border:1px solid rgba(255,92,104,.2)}
+.badge.mid{background:rgba(255,173,75,.1);color:#ffc77b;border:1px solid rgba(255,173,75,.2)}
+.stock-action{display:flex;gap:5px}.stock-action button{border:1px solid #1b4d69;background:#071a2b;color:#bfe8f2;border-radius:6px;padding:5px 7px}
+
+/* Users */
+.user-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.ucard{padding:15px}.ucard-head{display:flex;gap:10px;align-items:center;margin-bottom:10px}.ucard h4{margin:0}.ucard small{color:var(--muted)}.role-badge{font-size:10px;color:var(--cyan);border:1px solid rgba(20,232,245,.25);padding:4px 7px;border-radius:999px}
+
+/* DB */
+.db-layout{display:grid;grid-template-columns:360px 1fr;gap:14px}
+.db-status{padding:17px}.db-server{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid #194361;border-radius:12px;background:#061523}
+.db-icon{font-size:40px}.schema{padding:17px}.schema-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.entity{padding:11px;border:1px solid #17415e;border-radius:10px;background:#06131f}.entity b{color:var(--cyan);display:block;margin-bottom:5px}.entity span{font-size:10px;color:#9db0c0}
+.connection{margin-top:12px;padding:11px;border-radius:10px;background:rgba(124,255,53,.06);border:1px solid rgba(124,255,53,.2);font-size:11px;color:#b9ff9d}
+
+/* Reports */
+.report-layout{display:grid;grid-template-columns:1fr 1fr;gap:14px}.report-card{padding:16px}.report-list{display:grid;gap:8px}.rrow{display:flex;justify-content:space-between;border-bottom:1px solid #163550;padding:9px 0;font-size:12px}
+
+/* modal/toast */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.68);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal.on{display:flex}.modal-box{width:min(520px,94vw);padding:19px}.modal-head{display:flex;align-items:center;justify-content:space-between}.modal-head h3{margin:0}.close{background:none;border:0;color:#fff;font-size:25px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.form-grid .full{grid-column:1/-1}
+.toast{position:fixed;right:20px;bottom:20px;z-index:120;display:none;max-width:360px;padding:13px 15px;border-radius:10px;border:1px solid rgba(124,255,53,.3);background:#09221a;color:#baff9d;font-size:12px;box-shadow:var(--shadow)}
+.toast.on{display:block}
+.empty{padding:25px;text-align:center;color:#8297aa}
+
+@media(max-width:1100px){
+  .app{grid-template-columns:80px 1fr}.brand span,.nav span,.env,.side-bottom{display:none}.brand{justify-content:center}.nav button{justify-content:center}
+  .pos-layout,.db-layout,.report-layout{grid-template-columns:1fr}
+  .grid-4{grid-template-columns:repeat(2,1fr)}.result-cards,.user-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:760px){
+  .app{display:block}.sidebar{position:static;height:auto;display:flex;overflow:auto;padding:8px}.brand,.env,.side-bottom{display:none}.nav{display:flex;gap:6px}.nav button{min-width:52px}
+  .topbar{position:static}.grid-2,.grid-3,.grid-4,.result-cards,.user-grid{grid-template-columns:1fr}.search-row{grid-template-columns:1fr}.content{padding:12px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">🛒</div><span>SmartPOS Market</span></div>
+    <div class="env">● AMBIENTE DE PRUEBAS / UAT</div>
+
+    <nav class="nav">
+      <button class="active" data-page="pos">🧾 <span>Punto de Venta</span></button>
+      <button data-page="dashboard">🏠 <span>Inicio / Dashboard</span></button>
+      <button data-page="consultar">🔎 <span>Consultar</span></button>
+      <button data-page="inventario">📦 <span>Inventario</span></button>
+      <button data-page="usuarios" data-roles="Supervisor,Administrador">👥 <span>Usuarios</span></button>
+      <button data-page="reportes" data-roles="Supervisor,Administrador">📊 <span>Reportes</span></button>
+      <button data-page="database" data-roles="Administrador">🗄️ <span>Base de Datos</span></button>
+    </nav>
+
+    <div class="side-bottom">
+      <div class="user-mini">
+        <div class="avatar" id="miniAvatar">CA</div>
+        <div><b id="miniUser">Carlos Andrade</b><small id="miniRole">Cajero</small></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <h1 id="pageTitle">Punto de Venta</h1>
+      <div class="spacer"></div>
+      <div class="status"><span class="dot"></span> Sistema operativo</div>
+      <select class="role-select" id="currentUser" onchange="changeUser()"></select>
+    </header>
+
+    <div class="content">
+
+      <!-- POS -->
+      <section class="page active" id="page-pos">
+        <div class="page-head">
+          <div><h2>Caja POS</h2><p>Ambiente funcional de pruebas para venta, pagos y actualización de inventario.</p></div>
+          <div class="actions"><button class="btn" onclick="newSale()">Nueva venta</button><button class="btn warn" onclick="holdSale()">Suspender</button></div>
+        </div>
+
+        <div class="pos-layout">
+          <div class="card pos-card">
+            <div class="pos-title"><b>Vista de Caja – Punto de Venta</b><span class="online">● En línea</span></div>
+            <div class="scan">
+              <input id="posSearch" placeholder="Escanear código de barras o buscar producto..." oninput="renderPOS()">
+              <button onclick="focusBarcode()">▥</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Producto</th><th>Precio</th><th>Cant.</th><th>Subtotal</th><th></th></tr></thead>
+                <tbody id="posRows"></tbody>
+              </table>
+            </div>
+            <button class="btn" style="margin-top:10px" onclick="clearCart()">🗑 Limpiar carrito</button>
+
+            <div class="quick-stats">
+              <div class="qstat red">📦 <div><b>Stock Bajo</b><span id="lowStockCount">0 productos</span></div></div>
+              <div class="qstat blue">🏷️ <div><b>Productos Activos</b><span id="activeProducts">0</span></div></div>
+              <div class="qstat green">🏬 <div><b>Sucursales</b><span>3 conectadas</span></div></div>
+            </div>
+          </div>
+
+          <aside class="card summary">
+            <div class="total-label">Total a Pagar</div>
+            <div class="total" id="posTotal">$ 0</div>
+            <label>Método de Pago</label>
+            <select id="paymentMethod"><option>Tarjeta</option><option>Efectivo</option><option>Transferencia</option></select>
+            <button class="pay" onclick="checkout()">Pagar (F9)</button>
+            <div class="daily">
+              <b>Resumen del Día</b>
+              <div><span>Ventas</span><strong id="dailySales">$ 0</strong></div>
+              <div><span>Transacciones</span><strong id="dailyTx">0</strong></div>
+              <div><span>Productos vendidos</span><strong id="dailyItems">0</strong></div>
+              <div><span>Ticket promedio</span><strong id="dailyAvg">$ 0</strong></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section class="page" id="page-dashboard">
+        <div class="page-head">
+          <div><h2>Dashboard operativo</h2><p>Indicadores rápidos del supermercado para supervisión.</p></div>
+        </div>
+        <div class="grid-4">
+          <div class="card kpi"><small>Ventas de hoy</small><div class="value green" id="kpiSales">$ 0</div><small>Facturación acumulada</small></div>
+          <div class="card kpi"><small>Transacciones</small><div class="value blue" id="kpiTx">0</div><small>Ventas registradas</small></div>
+          <div class="card kpi"><small>Productos con stock bajo</small><div class="value red" id="kpiLow">0</div><small>Requieren reposición</small></div>
+          <div class="card kpi"><small>Usuarios activos</small><div class="value" id="kpiUsers">0</div><small>Acceso habilitado</small></div>
+        </div>
+        <div class="grid-2" style="margin-top:14px">
+          <div class="card chart">
+            <b>Ventas por hora (simulación)</b>
+            <div class="bars">
+              <div class="bar" style="height:35%"><span>8h</span></div><div class="bar" style="height:55%"><span>9h</span></div><div class="bar" style="height:68%"><span>10h</span></div><div class="bar" style="height:78%"><span>11h</span></div><div class="bar" style="height:92%"><span>12h</span></div><div class="bar" style="height:62%"><span>13h</span></div><div class="bar" style="height:74%"><span>14h</span></div>
+            </div>
+          </div>
+          <div class="card report-card">
+            <b>Alertas operativas</b>
+            <div class="report-list" id="alerts"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONSULTAR -->
+      <section class="page" id="page-consultar">
+        <div class="page-head">
+          <div><h2>Consultar productos</h2><p>Búsqueda por nombre, código de barras, categoría o estado de inventario.</p></div>
+        </div>
+        <div class="card search-panel">
+          <div class="search-row">
+            <input class="field" id="qText" placeholder="Nombre o código de barras..." oninput="renderQueries()">
+            <select class="field" id="qCategory" onchange="renderQueries()"></select>
+            <select class="field" id="qStock" onchange="renderQueries()"><option value="">Todo el stock</option><option value="low">Stock bajo</option><option value="ok">Disponible</option></select>
+            <button class="btn" onclick="renderQueries()">Buscar</button>
+          </div>
+          <div class="result-cards" id="queryResults"></div>
+        </div>
+      </section>
+
+      <!-- INVENTARIO -->
+      <section class="page" id="page-inventario">
+        <div class="page-head">
+          <div><h2>Inventario</h2><p>Control de existencias, stock mínimo y ajustes en ambiente de prueba.</p></div>
+          <div class="actions"><button class="btn primary" onclick="openRestock()">+ Entrada de inventario</button></div>
+        </div>
+        <div class="card pos-card">
+          <div class="toolbar">
+            <input class="field" style="max-width:320px" id="invSearch" placeholder="Buscar producto..." oninput="renderInventory()">
+            <select class="field" style="max-width:210px" id="invCategory" onchange="renderInventory()"></select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Producto</th><th>Categoría</th><th>Bodega</th><th>Stock</th><th>Mínimo</th><th>Estado</th><th>Acciones</th></tr></thead>
+              <tbody id="inventoryRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- USUARIOS -->
+      <section class="page" id="page-usuarios">
+        <div class="page-head">
+          <div><h2>Usuarios y roles</h2><p>Perfiles de acceso para cliente/consulta, cajero, supervisor y administrador.</p></div>
+          <div class="actions"><button class="btn primary" onclick="openUserModal()">+ Nuevo usuario</button></div>
+        </div>
+        <div class="user-grid" id="userCards"></div>
+      </section>
+
+      <!-- REPORTES -->
+      <section class="page" id="page-reportes">
+        <div class="page-head">
+          <div><h2>Reportes</h2><p>Información de ventas, productos y movimiento de inventario.</p></div>
+          <div class="actions"><button class="btn" onclick="exportCSV()">Exportar CSV</button></div>
+        </div>
+        <div class="report-layout">
+          <div class="card report-card">
+            <b>Últimas ventas</b>
+            <div class="report-list" id="salesReport"></div>
+          </div>
+          <div class="card report-card">
+            <b>Productos con menor inventario</b>
+            <div class="report-list" id="stockReport"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DATABASE -->
+      <section class="page" id="page-database">
+        <div class="page-head">
+          <div><h2>Base de Datos</h2><p>Vista técnica para administrador. Preparada para integración con Microsoft SQL Server.</p></div>
+          <div class="actions"><button class="btn primary" onclick="testConnection()">Probar conexión</button></div>
+        </div>
+        <div class="db-layout">
+          <div class="card db-status">
+            <div class="db-server">
+              <div class="db-icon">🗄️</div>
+              <div><b>Microsoft SQL Server</b><small style="display:block;color:var(--muted);margin-top:3px">SmartPOSMarket</small></div>
+            </div>
+            <div class="connection" id="dbConnection">● Estado de demo: conectado al origen de datos local del navegador.</div>
+            <div style="margin-top:13px;font-size:11px;color:var(--muted);line-height:1.5">
+              En producción, esta pantalla consultará una API Node.js/Express. La API será la responsable de conectarse a SQL Server.
+            </div>
+          </div>
+          <div class="card schema">
+            <b>Esquema principal</b>
+            <div class="schema-grid" style="margin-top:12px" id="schemaGrid"></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- USER MODAL -->
+<div class="modal" id="userModal">
+  <div class="card modal-box">
+    <div class="modal-head"><h3>Nuevo usuario</h3><button class="close" onclick="closeModal('userModal')">×</button></div>
+    <div class="form-grid">
+      <input class="field" id="uName" placeholder="Nombre completo">
+      <input class="field" id="uLogin" placeholder="Usuario">
+      <select class="field" id="uRole"><option>Cliente</option><option>Cajero</option><option>Supervisor</option><option>Administrador</option></select>
+      <input class="field" id="uEmail" placeholder="Correo">
+      <button class="btn primary full" onclick="addUser()">Crear usuario</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESTOCK MODAL -->
+<div class="modal" id="restockModal">
+  <div class="card modal-box">
+    <div class="modal-head"><h3>Entrada de inventario</h3><button class="close" onclick="closeModal('restockModal')">×</button></div>
+    <div class="form-grid">
+      <select class="field full" id="rProduct"></select>
+      <input class="field" id="rQty" type="number" min="1" value="10" placeholder="Cantidad">
+      <select class="field" id="rWarehouse"><option>Bodega Principal</option><option>Piso de Venta</option></select>
+      <button class="btn primary full" onclick="restock()">Registrar entrada</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const money = n => "$ " + Number(n).toLocaleString("es-CO");
+
+const defaultProducts = [
+  {id:1,code:"7501055301234",name:"Leche Entera 1L",category:"Lácteos",price:5200,stock:25,min:8,warehouse:"Bodega Principal",icon:"🥛"},
+  {id:2,code:"7501055305676",name:"Arroz Premium 1kg",category:"Granos",price:7800,stock:18,min:8,warehouse:"Bodega Principal",icon:"🍚"},
+  {id:3,code:"7501055308905",name:"Aceite Vegetal 900ml",category:"Despensa",price:14900,stock:12,min:6,warehouse:"Bodega Principal",icon:"🧴"},
+  {id:4,code:"7501055301111",name:"Azúcar Blanca 1kg",category:"Granos",price:5900,stock:30,min:10,warehouse:"Bodega Principal",icon:"🧂"},
+  {id:5,code:"7702001123456",name:"Gaseosa Cola 1.5L",category:"Bebidas",price:7200,stock:7,min:8,warehouse:"Piso de Venta",icon:"🥤"},
+  {id:6,code:"7701234009876",name:"Pan Integral",category:"Panadería",price:6900,stock:5,min:6,warehouse:"Piso de Venta",icon:"🍞"},
+  {id:7,code:"7700000991122",name:"Huevos AA x12",category:"Lácteos",price:11900,stock:16,min:8,warehouse:"Bodega Principal",icon:"🥚"},
+  {id:8,code:"7709999887766",name:"Café Molido 500g",category:"Despensa",price:18400,stock:9,min:5,warehouse:"Bodega Principal",icon:"☕"}
+];
+
+const defaultUsers = [
+  {id:1,name:"Carlos Andrade",login:"cajero1",role:"Cajero",email:"carlos@smartpos.local",active:true},
+  {id:2,name:"Laura Gómez",login:"supervisor1",role:"Supervisor",email:"laura@smartpos.local",active:true},
+  {id:3,name:"Administrador POS",login:"admin",role:"Administrador",email:"admin@smartpos.local",active:true},
+  {id:4,name:"Cliente Consulta",login:"cliente",role:"Cliente",email:"cliente@smartpos.local",active:true}
+];
+
+let products = JSON.parse(localStorage.getItem("smartpos_products") || "null") || defaultProducts;
+let users = JSON.parse(localStorage.getItem("smartpos_users") || "null") || defaultUsers;
+let sales = JSON.parse(localStorage.getItem("smartpos_sales") || "[]");
+let cart = {};
+let currentUserId = Number(localStorage.getItem("smartpos_current_user") || 1);
+
+function save(){
+  localStorage.setItem("smartpos_products",JSON.stringify(products));
+  localStorage.setItem("smartpos_users",JSON.stringify(users));
+  localStorage.setItem("smartpos_sales",JSON.stringify(sales));
+  localStorage.setItem("smartpos_current_user",currentUserId);
+}
+
+function toast(msg){
+  const t=document.getElementById("toast");t.textContent=msg;t.classList.add("on");
+  clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove("on"),2600)
+}
+
+function getCurrentUser(){return users.find(u=>u.id===currentUserId) || users[0]}
+
+function renderUserSelector(){
+  const sel=document.getElementById("currentUser");
+  sel.innerHTML=users.filter(u=>u.active).map(u=>`<option value="${u.id}" ${u.id===currentUserId?"selected":""}>${u.name} · ${u.role}</option>`).join("");
+  const u=getCurrentUser();
+  document.getElementById("miniUser").textContent=u.name;
+  document.getElementById("miniRole").textContent=u.role;
+  document.getElementById("miniAvatar").textContent=u.name.split(" ").slice(0,2).map(x=>x[0]).join("").toUpperCase();
+  applyRolePermissions();
+}
+function changeUser(){currentUserId=Number(document.getElementById("currentUser").value);save();renderUserSelector();showPage("pos");toast("Sesión cambiada a "+getCurrentUser().role)}
+
+function applyRolePermissions(){
+  const role=getCurrentUser().role;
+  document.querySelectorAll(".nav button[data-roles]").forEach(b=>{
+    const allowed=b.dataset.roles.split(",");
+    b.style.display=allowed.includes(role)?"flex":"none";
+  });
+}
+
+function showPage(name){
+  const target=document.querySelector(`.nav button[data-page="${name}"]`);
+  if(target && target.dataset.roles){
+    const allowed=target.dataset.roles.split(",");
+    if(!allowed.includes(getCurrentUser().role)){toast("Tu rol no tiene permisos para este módulo.");return}
+  }
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById("page-"+name).classList.add("active");
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+  if(target)target.classList.add("active");
+  const titleMap={pos:"Punto de Venta",dashboard:"Dashboard",consultar:"Consultar",inventario:"Inventario",usuarios:"Usuarios",reportes:"Reportes",database:"Base de Datos"};
+  document.getElementById("pageTitle").textContent=titleMap[name]||"SmartPOS";
+  renderAll();
+}
+document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+
+function cartQty(id){return cart[id]||0}
+function changeQty(id,d){
+  const p=products.find(x=>x.id===id); if(!p)return;
+  const q=Math.max(0,Math.min(p.stock,cartQty(id)+d));
+  if(q===0)delete cart[id]; else cart[id]=q;
+  renderPOS();
+}
+function addToCart(id){changeQty(id,1)}
+function clearCart(){cart={};renderPOS()}
+function newSale(){cart={};document.getElementById("posSearch").value="";renderPOS();toast("Nueva venta iniciada.")}
+function holdSale(){toast("Venta suspendida en ambiente de prueba.");}
+function focusBarcode(){document.getElementById("posSearch").focus()}
+
+function renderPOS(){
+  const q=(document.getElementById("posSearch").value||"").toLowerCase();
+  const visible=products.filter(p=>p.name.toLowerCase().includes(q)||p.code.includes(q));
+  const body=document.getElementById("posRows");
+  body.innerHTML=visible.map(p=>{
+    const qcart=cartQty(p.id);
+    return `<tr>
+      <td><div class="prod"><div class="picon">${p.icon}</div><div><b>${p.name}</b><br><small>${p.code}</small></div></div></td>
+      <td>${money(p.price)}</td>
+      <td><div class="qty"><button onclick="changeQty(${p.id},-1)">−</button><span>${qcart}</span><button onclick="changeQty(${p.id},1)">+</button></div></td>
+      <td><b>${money(p.price*qcart)}</b></td>
+      <td><button class="btn" onclick="addToCart(${p.id})">Agregar</button></td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="5" class="empty">No se encontraron productos.</td></tr>`;
+  const total=Object.entries(cart).reduce((s,[id,q])=>{const p=products.find(x=>x.id===Number(id));return s+(p?p.price*q:0)},0);
+  document.getElementById("posTotal").textContent=money(total);
+  document.getElementById("lowStockCount").textContent=products.filter(p=>p.stock<=p.min).length+" productos";
+  document.getElementById("activeProducts").textContent=products.length.toLocaleString("es-CO");
+  renderDaily();
+}
+
+function checkout(){
+  const entries=Object.entries(cart);
+  if(!entries.length){toast("Agrega productos a la venta.");return}
+  for(const [id,q] of entries){
+    const p=products.find(x=>x.id===Number(id));
+    if(!p || q>p.stock){toast("Stock insuficiente para "+(p?p.name:"producto"));return}
+  }
+  const items=entries.map(([id,q])=>{const p=products.find(x=>x.id===Number(id));return {id:p.id,name:p.name,qty:q,price:p.price,subtotal:p.price*q}});
+  const total=items.reduce((s,i)=>s+i.subtotal,0);
+  items.forEach(i=>{products.find(p=>p.id===i.id).stock-=i.qty});
+  sales.unshift({id:Date.now(),date:new Date().toISOString(),user:getCurrentUser().name,method:document.getElementById("paymentMethod").value,total,items});
+  cart={};save();renderAll();toast("Venta registrada correctamente por "+money(total));
+}
+function todaySales(){
+  const day=new Date().toISOString().slice(0,10);
+  return sales.filter(s=>s.date.slice(0,10)===day);
+}
+function renderDaily(){
+  const arr=todaySales(),total=arr.reduce((s,x)=>s+x.total,0),items=arr.reduce((s,x)=>s+x.items.reduce((a,i)=>a+i.qty,0),0);
+  document.getElementById("dailySales").textContent=money(total);
+  document.getElementById("dailyTx").textContent=arr.length;
+  document.getElementById("dailyItems").textContent=items;
+  document.getElementById("dailyAvg").textContent=money(arr.length?Math.round(total/arr.length):0);
+}
+
+function setupFilters(){
+  const cats=["",...new Set(products.map(p=>p.category))];
+  const options=cats.map(c=>`<option value="${c}">${c||"Todas las categorías"}</option>`).join("");
+  document.getElementById("qCategory").innerHTML=options;
+  document.getElementById("invCategory").innerHTML=options;
+  document.getElementById("rProduct").innerHTML=products.map(p=>`<option value="${p.id}">${p.name}</option>`).join("");
+}
+
+function renderQueries(){
+  const t=(document.getElementById("qText").value||"").toLowerCase(),cat=document.getElementById("qCategory").value,stock=document.getElementById("qStock").value;
+  const arr=products.filter(p=>{
+    const a=!t||p.name.toLowerCase().includes(t)||p.code.includes(t);
+    const b=!cat||p.category===cat;
+    const c=!stock||(stock==="low"?p.stock<=p.min:p.stock>p.min);
+    return a&&b&&c;
+  });
+  document.getElementById("queryResults").innerHTML=arr.map(p=>`<div class="card result">
+    <h4>${p.icon} ${p.name}</h4><p><b>Código:</b> ${p.code}</p><p><b>Categoría:</b> ${p.category}</p>
+    <p><b>Precio:</b> ${money(p.price)}</p><p><b>Stock:</b> ${p.stock} · ${p.warehouse}</p>
+    <span class="badge ${p.stock<=p.min?"low":"ok"}">${p.stock<=p.min?"Stock bajo":"Disponible"}</span>
+  </div>`).join("")||`<div class="empty">No se encontraron resultados.</div>`;
+}
+
+function renderInventory(){
+  const t=(document.getElementById("invSearch").value||"").toLowerCase(),cat=document.getElementById("invCategory").value;
+  const arr=products.filter(p=>(!t||p.name.toLowerCase().includes(t)||p.code.includes(t))&&(!cat||p.category===cat));
+  document.getElementById("inventoryRows").innerHTML=arr.map(p=>{
+    const state=p.stock<=p.min?"low":p.stock<=p.min*1.5?"mid":"ok";
+    const label=state==="low"?"Stock bajo":state==="mid"?"Por revisar":"Disponible";
+    return `<tr><td><div class="prod"><div class="picon">${p.icon}</div><div><b>${p.name}</b><br><small>${p.code}</small></div></div></td>
+    <td>${p.category}</td><td>${p.warehouse}</td><td><b>${p.stock}</b></td><td>${p.min}</td><td><span class="badge ${state}">${label}</span></td>
+    <td><div class="stock-action"><button onclick="adjustStock(${p.id},1)">+1</button><button onclick="adjustStock(${p.id},-1)">-1</button></div></td></tr>`;
+  }).join("");
+}
+function adjustStock(id,d){const p=products.find(x=>x.id===id);p.stock=Math.max(0,p.stock+d);save();renderAll();toast("Inventario actualizado para "+p.name)}
+function openRestock(){document.getElementById("restockModal").classList.add("on")}
+function restock(){
+  const id=Number(document.getElementById("rProduct").value),qty=Number(document.getElementById("rQty").value),warehouse=document.getElementById("rWarehouse").value;
+  if(!qty||qty<1){toast("Cantidad inválida.");return}
+  const p=products.find(x=>x.id===id);p.stock+=qty;p.warehouse=warehouse;save();closeModal("restockModal");renderAll();toast("Entrada registrada: +"+qty+" unidades de "+p.name)
+}
+
+function renderUsers(){
+  document.getElementById("userCards").innerHTML=users.map(u=>`<div class="card ucard">
+    <div class="ucard-head"><div class="avatar">${u.name.split(" ").slice(0,2).map(x=>x[0]).join("").toUpperCase()}</div>
+    <div><h4>${u.name}</h4><small>@${u.login}</small></div></div>
+    <div class="role-badge">${u.role}</div>
+    <p style="font-size:11px;color:var(--muted)">${u.email}</p>
+    <button class="btn ${u.active?"danger":"primary"}" onclick="toggleUser(${u.id})">${u.active?"Desactivar":"Activar"}</button>
+  </div>`).join("");
+}
+function openUserModal(){document.getElementById("userModal").classList.add("on")}
+function addUser(){
+  const name=document.getElementById("uName").value.trim(),login=document.getElementById("uLogin").value.trim(),role=document.getElementById("uRole").value,email=document.getElementById("uEmail").value.trim();
+  if(!name||!login){toast("Completa nombre y usuario.");return}
+  users.push({id:Date.now(),name,login,role,email:email||login+"@smartpos.local",active:true});save();closeModal("userModal");renderAll();toast("Usuario creado correctamente.")
+}
+function toggleUser(id){const u=users.find(x=>x.id===id);if(u.id===currentUserId){toast("No puedes desactivar la sesión actual.");return}u.active=!u.active;save();renderAll()}
+
+function renderDashboard(){
+  const arr=todaySales(),total=arr.reduce((s,x)=>s+x.total,0);
+  document.getElementById("kpiSales").textContent=money(total);document.getElementById("kpiTx").textContent=arr.length;document.getElementById("kpiLow").textContent=products.filter(p=>p.stock<=p.min).length;document.getElementById("kpiUsers").textContent=users.filter(u=>u.active).length;
+  const low=products.filter(p=>p.stock<=p.min).slice(0,5);
+  document.getElementById("alerts").innerHTML=(low.map(p=>`<div class="rrow"><span>⚠️ ${p.name}</span><b class="red">${p.stock} und.</b></div>`).join("")||`<div class="rrow"><span>Sin alertas críticas</span><b class="green">OK</b></div>`);
+}
+
+function renderReports(){
+  document.getElementById("salesReport").innerHTML=sales.slice(0,8).map(s=>`<div class="rrow"><span>#${String(s.id).slice(-6)} · ${new Date(s.date).toLocaleString("es-CO")}<br><small>${s.user} · ${s.method}</small></span><b>${money(s.total)}</b></div>`).join("")||`<div class="empty">Aún no hay ventas.</div>`;
+  document.getElementById("stockReport").innerHTML=[...products].sort((a,b)=>a.stock-b.stock).slice(0,8).map(p=>`<div class="rrow"><span>${p.name}</span><b class="${p.stock<=p.min?"red":"green"}">${p.stock} und.</b></div>`).join("");
+}
+function exportCSV(){
+  if(!sales.length){toast("No hay ventas para exportar.");return}
+  const rows=[["IdVenta","Fecha","Usuario","MedioPago","Total"],...sales.map(s=>[s.id,s.date,s.user,s.method,s.total])];
+  const blob=new Blob([rows.map(r=>r.join(",")).join("\n")],{type:"text/csv"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="ventas_smartpos.csv";a.click();URL.revokeObjectURL(a.href);toast("CSV generado.")
+}
+
+function renderDatabase(){
+  const entities=[
+    ["Categorias","IdCategoria · Nombre"],["Productos","IdProducto · IdCategoria · Precio"],["Bodegas","IdBodega · Nombre"],
+    ["Inventario","IdProducto · IdBodega · Cantidad"],["Proveedores","IdProveedor · Nombre"],["Compras","IdCompra · IdProveedor · IdUsuario"],
+    ["DetalleCompra","IdCompra · IdProducto"],["Ventas","IdVenta · IdUsuario · Total"],["DetalleVenta","IdVenta · IdProducto"],
+    ["Pagos","IdVenta · MedioPago"],["Roles","IdRol · Nombre"],["Usuarios","IdUsuario · IdRol"],["Auditoria","IdUsuario · Acción"],["MovimientosInventario","IdProducto · IdBodega · Tipo"]
+  ];
+  document.getElementById("schemaGrid").innerHTML=entities.map(e=>`<div class="entity"><b>${e[0]}</b><span>${e[1]}</span></div>`).join("");
+}
+function testConnection(){
+  const box=document.getElementById("dbConnection");box.textContent="● Prueba exitosa: ambiente local disponible. API SQL Server pendiente de conexión real.";toast("Prueba de conexión simulada completada.")
+}
+
+function closeModal(id){document.getElementById(id).classList.remove("on")}
+
+function renderAll(){
+  renderPOS();setupFilters();renderQueries();renderInventory();renderUsers();renderDashboard();renderReports();renderDatabase();renderUserSelector()
+}
+document.addEventListener("keydown",e=>{if(e.key==="F9"){e.preventDefault();checkout()}})
+window.addEventListener("click",e=>{if(e.target.classList.contains("modal"))e.target.classList.remove("on")})
+renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{
+  "Version": 1,
+  "Hash": "Mph3QPm7l4vfuiwaFP8KWlB6/hoL3ckYD90zfEI/DFI=",
+  "Source": "SmartPOS.Api",
+  "BasePath": "_content/SmartPOS.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "SmartPOS.Api/wwwroot",
+      "Source": "SmartPOS.Api",
+      "ContentRoot": "/Users/andres/Documents/JUANCHO/SmartPOS/backend/SmartPOS.Api/wwwroot/",
+      "BasePath": "_content/SmartPOS.Api",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "/Users/andres/Documents/JUANCHO/SmartPOS/backend/SmartPOS.Api/wwwroot/index.html",
+      "SourceId": "SmartPOS.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/andres/Documents/JUANCHO/SmartPOS/backend/SmartPOS.Api/wwwroot/",
+      "BasePath": "_content/SmartPOS.Api",
+      "RelativePath": "index.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/index.html"
+    }
+  ]
+}
